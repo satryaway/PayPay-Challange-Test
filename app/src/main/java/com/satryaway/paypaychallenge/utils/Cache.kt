@@ -13,7 +13,7 @@ class Cache (pref: SharedPreferences) {
         return preferences.getString(Constants.QUOTE, "").isNullOrEmpty().not()
     }
 
-    fun saveCurrencies(quotes: Map<String, Float>?) {
+    fun saveCurrencies(quotes: HashMap<String, Float>?) {
         quotes.let {
             val jsonString = Gson().toJson(it)
             val editor: SharedPreferences.Editor = preferences.edit()
@@ -22,15 +22,15 @@ class Cache (pref: SharedPreferences) {
         }
     }
 
-    fun getCurrencies() : Map<String, Float> {
+    fun getCurrencies() : HashMap<String, Float> {
         val jsonString = preferences.getString(Constants.QUOTE, "")
-        val token = object : TypeToken<Map<String, Float>>(){}.type
-        var listOfCurrency = mapOf<String, Float>()
+        val token = object : TypeToken<HashMap<String, Float>>(){}.type
+        var listOfCurrency = hashMapOf<String, Float>()
         if (jsonString.isNullOrEmpty().not()) {
             listOfCurrency = Gson().fromJson(jsonString, token)
         }
 
-        return listOfCurrency
+        return StringUtils.modifyCurrencyName(listOfCurrency)
     }
 
     companion object {
