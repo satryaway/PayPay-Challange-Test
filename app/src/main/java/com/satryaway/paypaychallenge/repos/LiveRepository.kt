@@ -9,6 +9,4 @@ class LiveRepository {
     var client: ApiService = Api.webService
 
     suspend fun live() = client.getLiveCurrency(Constants.access_key).await()
-
-
 }

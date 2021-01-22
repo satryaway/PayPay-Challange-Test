@@ -32,8 +32,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         presenter.requestRate(this)
 
         btn_convert.setOnClickListener {
-            presenter.currentNominal = et_input_nominal.text.toString().toFloat()
-            presenter.convert()
+            presenter.convert(et_input_nominal.text.toString())
         }
     }
 

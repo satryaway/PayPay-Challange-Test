@@ -1,8 +1,5 @@
 package com.satryaway.paypaychallenge.utils
 
-import androidx.annotation.VisibleForTesting
-import java.lang.Exception
-
 object StringUtils {
     fun getCurrencyValue(text: String, isKey: Boolean): String {
         return try {
@@ -12,7 +9,7 @@ object StringUtils {
             else
                 key[1]
         } catch (e: Exception) {
-            ""
+            text
         }
     }
 

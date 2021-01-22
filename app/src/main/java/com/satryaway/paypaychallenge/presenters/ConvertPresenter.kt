@@ -1,16 +1,20 @@
 package com.satryaway.paypaychallenge.presenters
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.satryaway.paypaychallenge.repos.LiveRepository
 import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.lang.NumberFormatException
 
 class ConvertPresenter {
     private var view: View? = null
-    private val liveRepository = LiveRepository()
+
+    @VisibleForTesting
+    val liveRepository = LiveRepository()
 
     var currencyList = arrayListOf<String>()
     var currentCurrency = "USD"
@@ -50,11 +54,16 @@ class ConvertPresenter {
         }
     }
 
-    fun convert() {
-        if (currentNominal <= 0) {
-            view?.showErrorMessage("Please Input Correct Value")
-        } else {
-            view?.setConversionValue()
+    fun convert(nominal: String) {
+        try {
+            this.currentNominal = nominal.toFloat()
+            if (currentNominal <= 0) {
+                view?.showErrorMessage("Please Input Correct Value")
+            } else {
+                view?.setConversionValue()
+            }
+        } catch (exception: NumberFormatException) {
+            view?.showErrorMessage("Please Input Numeric Value")
         }
     }
 
