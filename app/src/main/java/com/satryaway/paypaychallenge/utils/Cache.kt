@@ -9,16 +9,15 @@ import com.google.gson.reflect.TypeToken
 class Cache(pref: SharedPreferences) {
 
     private val preferences = pref
-    var currencyMap = hashMapOf<String, Float>()
 
     fun isCurrencyExpired(): Boolean {
         // add time condition here
         return preferences.getString(Constants.CURRENCY, "").isNullOrEmpty()
     }
 
-    fun saveCurrencies(quotes: HashMap<String, Float>?, onSave: (Boolean) -> Unit) {
+    fun saveCurrencies(quotes: HashMap<String, Float>?, onSave: (HashMap<String, Float>,Boolean) -> Unit) {
         if (quotes != null) {
-            currencyMap.clear()
+            val currencyMap = hashMapOf<String, Float>()
             quotes.forEach {
                 val currency = StringUtils.getCurrencyInitial(it.key)
                 currencyMap[currency] = it.value
@@ -27,17 +26,17 @@ class Cache(pref: SharedPreferences) {
             val editor: SharedPreferences.Editor = preferences.edit()
             editor.putString(Constants.CURRENCY, jsonString)
             editor.apply()
-            onSave.invoke(true)
+            onSave.invoke(currencyMap, true)
         } else {
-            onSave.invoke(false)
+            onSave.invoke(hashMapOf(), false)
         }
     }
 
-    fun initCurrencies(){
+    fun initCurrencies(onFetchCurrency: (HashMap<String, Float>) -> Unit){
         val jsonString = preferences.getString(Constants.CURRENCY, "")
         val token = object : TypeToken<HashMap<String, Float>>() {}.type
         if (jsonString.isNullOrEmpty().not()) {
-            currencyMap = Gson().fromJson(jsonString, token)
+            onFetchCurrency.invoke(Gson().fromJson(jsonString, token))
         }
     }
 
