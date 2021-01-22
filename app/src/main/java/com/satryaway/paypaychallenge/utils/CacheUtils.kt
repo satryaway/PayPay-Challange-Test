@@ -2,19 +2,34 @@ package com.satryaway.paypaychallenge.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.*
+import kotlin.collections.HashMap
 
 class CacheUtils(pref: SharedPreferences) {
 
     private val preferences = pref
 
     fun isCurrencyExpired(): Boolean {
-        // add time condition here
-        return preferences.getString(Constants.CURRENCY, "").isNullOrEmpty()
+        val isCacheEmpty = preferences.getString(Constants.CURRENCY, "").isNullOrEmpty()
+        val timeFlag = Date(preferences.getLong(Constants.TIME_FLAG, 0))
+
+        return isMoreThanDesignatedTimeToFetchCurrency(timeFlag) || isCacheEmpty
     }
 
-    fun saveCurrencies(quotes: HashMap<String, Float>?, onSave: (HashMap<String, Float>,Boolean) -> Unit) {
+    fun isMoreThanDesignatedTimeToFetchCurrency(timeFlag: Date): Boolean {
+        val timeNow: Long = Calendar.getInstance().time.time
+        val flag = timeFlag.time
+        val subs = timeNow - flag
+        return subs >= Constants.RANGE_BETWEEN_LAST_CURRENCY_FETCH
+    }
+
+    fun saveCurrencies(
+        quotes: HashMap<String, Float>?,
+        onSave: (HashMap<String, Float>, Boolean) -> Unit
+    ) {
         if (quotes != null) {
             val currencyMap = hashMapOf<String, Float>()
             quotes.forEach {
@@ -25,13 +40,17 @@ class CacheUtils(pref: SharedPreferences) {
             val editor: SharedPreferences.Editor = preferences.edit()
             editor.putString(Constants.CURRENCY, jsonString)
             editor.apply()
+
+            val timeNow = Calendar.getInstance().time
+            preferences.edit().putLong(Constants.TIME_FLAG, timeNow.time).apply()
+
             onSave.invoke(currencyMap, true)
         } else {
             onSave.invoke(hashMapOf(), false)
         }
     }
 
-    fun initCurrencies(onFetchCurrency: (HashMap<String, Float>) -> Unit){
+    fun initCurrencies(onFetchCurrency: (HashMap<String, Float>) -> Unit) {
         val jsonString = preferences.getString(Constants.CURRENCY, "")
         val token = object : TypeToken<HashMap<String, Float>>() {}.type
         if (jsonString.isNullOrEmpty().not()) {
