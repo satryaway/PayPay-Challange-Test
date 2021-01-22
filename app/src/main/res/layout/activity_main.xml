@@ -7,18 +7,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/et_input_nominal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:layout_marginTop="10dp"
-        android:autofillHints="Input Nominal"
-        android:hint="1500"
-        android:text="1"
-        android:inputType="numberDecimal"
-        tools:ignore="HardcodedText,LabelFor" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -33,20 +21,35 @@
             android:layout_marginRight="3dp"
             android:layout_weight="1" />
 
-        <Button
-            android:id="@+id/btn_convert"
+        <EditText
+            android:id="@+id/et_input_nominal"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="3dp"
-            android:layout_marginLeft="3dp"
+            android:layout_margin="5dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="1"
-            android:text="@string/convert" />
+            android:autofillHints="Input Nominal"
+            android:hint="1500"
+            android:inputType="numberDecimal"
+            android:text="1"
+            tools:ignore="HardcodedText,LabelFor" />
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_convert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/convert" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
-        tools:listitem="@layout/currency_row_item"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        tools:listitem="@layout/currency_row_item" />
 
 </LinearLayout>

@@ -16,17 +16,6 @@ object StringUtils {
         }
     }
 
-    @VisibleForTesting
-    fun getCollectedList(quotes: HashMap<String, Float>): ArrayList<String> {
-        val list = arrayListOf<String>()
-        quotes.forEach {
-            val text = "${StringUtils.getCurrencyInitial(it.key)};${it.value}"
-            list.add(text)
-        }
-
-        return list
-    }
-
     fun modifyCurrencyName(quotes: HashMap<String, Float>): HashMap<String, Float> {
         val mapsOfCurrency = hashMapOf<String, Float>()
         quotes.forEach {
@@ -45,7 +34,13 @@ object StringUtils {
         return list
     }
 
-    private fun getCurrencyInitial(text: String): String {
+    fun getRateFromSelectedCurrency(currency: String, currencyList: ArrayList<String>) {
+        if (currencyList.contains(currency)) {
+
+        }
+    }
+
+    fun getCurrencyInitial(text: String): String {
         return if (text.count() >= 3) {
             text.takeLast(3)
         } else {

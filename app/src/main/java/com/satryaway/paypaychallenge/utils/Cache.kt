@@ -2,35 +2,43 @@ package com.satryaway.paypaychallenge.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class Cache (pref: SharedPreferences) {
+class Cache(pref: SharedPreferences) {
 
-    val preferences = pref
+    private val preferences = pref
+    var currencyMap = hashMapOf<String, Float>()
 
-    fun isCurrenciesExisted() : Boolean {
-        return preferences.getString(Constants.QUOTE, "").isNullOrEmpty().not()
+    fun isCurrencyExpired(): Boolean {
+        // add time condition here
+        return preferences.getString(Constants.CURRENCY, "").isNullOrEmpty()
     }
 
-    fun saveCurrencies(quotes: HashMap<String, Float>?) {
-        quotes.let {
-            val jsonString = Gson().toJson(it)
+    fun saveCurrencies(quotes: HashMap<String, Float>?, onSave: (Boolean) -> Unit) {
+        if (quotes != null) {
+            currencyMap.clear()
+            quotes.forEach {
+                val currency = StringUtils.getCurrencyInitial(it.key)
+                currencyMap[currency] = it.value
+            }
+            val jsonString = Gson().toJson(currencyMap)
             val editor: SharedPreferences.Editor = preferences.edit()
-            editor.putString(Constants.QUOTE, jsonString)
+            editor.putString(Constants.CURRENCY, jsonString)
             editor.apply()
+            onSave.invoke(true)
+        } else {
+            onSave.invoke(false)
         }
     }
 
-    fun getCurrencies() : HashMap<String, Float> {
-        val jsonString = preferences.getString(Constants.QUOTE, "")
-        val token = object : TypeToken<HashMap<String, Float>>(){}.type
-        var listOfCurrency = hashMapOf<String, Float>()
+    fun initCurrencies(){
+        val jsonString = preferences.getString(Constants.CURRENCY, "")
+        val token = object : TypeToken<HashMap<String, Float>>() {}.type
         if (jsonString.isNullOrEmpty().not()) {
-            listOfCurrency = Gson().fromJson(jsonString, token)
+            currencyMap = Gson().fromJson(jsonString, token)
         }
-
-        return StringUtils.modifyCurrencyName(listOfCurrency)
     }
 
     companion object {
@@ -39,8 +47,12 @@ class Cache (pref: SharedPreferences) {
         @JvmStatic
         fun get(context: Context): Cache? {
             if (instance != null) return instance
-            instance = Cache(context.getSharedPreferences(Constants.PREFERENCES,
-                Context.MODE_PRIVATE))
+            instance = Cache(
+                context.getSharedPreferences(
+                    Constants.PREFERENCES,
+                    Context.MODE_PRIVATE
+                )
+            )
             return instance
         }
     }

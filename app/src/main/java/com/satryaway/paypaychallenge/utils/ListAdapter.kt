@@ -29,7 +29,7 @@ class ListAdapter() : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
         mapsOfCurrency: HashMap<String, Float>
     ) {
         this.dataSet.clear()
-        this.mapsOfCurrency.clear()
+        this.mapsOfCurrency = hashMapOf()
         this.dataSet = dataSet
         this.mapsOfCurrency = mapsOfCurrency
         notifyDataSetChanged()
