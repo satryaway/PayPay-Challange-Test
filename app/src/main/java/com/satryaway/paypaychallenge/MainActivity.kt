@@ -20,15 +20,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
-    private var currentSpinnerPosition = 0
     private var liveRepository = LiveRepository()
     private var listAdapter = ListAdapter()
     private var arrayAdapter: ArrayAdapter<String>? = null
+
     private var currencyList = arrayListOf<String>()
-    private val DEFAULT_CURRENCY = "USD"
-    private val DEFAULT_NOMINAL = 1f
-    private var currentCurrency = DEFAULT_CURRENCY
-    private var currentNominal = DEFAULT_NOMINAL
+    private var currentCurrency = "USD"
+    private var currentNominal = 1f
+
     private var cache: Cache? = null
     private var requireInit = true
 
@@ -38,8 +37,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         cache = Cache.get(this)
 
-        requestCurrencies()
         initAdapter()
+        requestCurrencies()
         initValues()
 
         btn_convert.setOnClickListener {
@@ -108,11 +107,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             currencyList
         )
         arrayAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        currency_spinner.adapter = arrayAdapter
         with(currency_spinner) {
             adapter = arrayAdapter
-            currency_spinner.gravity = Gravity.CENTER
-            currency_spinner.onItemSelectedListener = this@MainActivity
+            gravity = Gravity.CENTER
+            onItemSelectedListener = this@MainActivity
         }
     }
 
@@ -147,7 +145,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         currentCurrency = currencyList[position]
-        currentSpinnerPosition = position
         if(requireInit) {
             setValueToAdapter()
             requireInit = false
