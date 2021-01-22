@@ -16,15 +16,6 @@ object StringUtils {
         }
     }
 
-    fun modifyCurrencyName(quotes: HashMap<String, Float>): HashMap<String, Float> {
-        val mapsOfCurrency = hashMapOf<String, Float>()
-        quotes.forEach {
-            mapsOfCurrency[getCurrencyInitial(it.key)] = it.value
-        }
-
-        return mapsOfCurrency
-    }
-
     fun getCurrenciesValue(quotes: HashMap<String, Float>): ArrayList<String> {
         val list = arrayListOf<String>()
         quotes.forEach {
@@ -32,12 +23,6 @@ object StringUtils {
         }
 
         return list
-    }
-
-    fun getRateFromSelectedCurrency(currency: String, currencyList: ArrayList<String>) {
-        if (currencyList.contains(currency)) {
-
-        }
     }
 
     fun getCurrencyInitial(text: String): String {

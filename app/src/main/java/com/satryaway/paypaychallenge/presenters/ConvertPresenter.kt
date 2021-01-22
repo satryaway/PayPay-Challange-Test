@@ -1,9 +1,8 @@
 package com.satryaway.paypaychallenge.presenters
 
 import android.content.Context
-import androidx.annotation.VisibleForTesting
 import com.satryaway.paypaychallenge.repos.LiveRepository
-import com.satryaway.paypaychallenge.utils.Cache
+import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -12,8 +11,12 @@ import kotlinx.coroutines.launch
 class ConvertPresenter {
     private var view: View? = null
     private val liveRepository = LiveRepository()
-    var currencyMap = hashMapOf<String, Float>()
 
+    var currencyList = arrayListOf<String>()
+    var currentCurrency = "USD"
+    var currentNominal = 1f
+
+    var currencyMap = hashMapOf<String, Float>()
 
     fun attachView(view: View) {
         this.view = view
@@ -24,7 +27,7 @@ class ConvertPresenter {
     }
 
     fun requestRate(context: Context) {
-        val cache = Cache.get(context)
+        val cache = CacheUtils.get(context)
         if (cache?.isCurrencyExpired() == true) {
             GlobalScope.launch(Dispatchers.IO) {
                 val result = liveRepository.live()
@@ -47,8 +50,8 @@ class ConvertPresenter {
         }
     }
 
-    fun convert(nominal: Float) {
-        if (nominal <= 0) {
+    fun convert() {
+        if (currentNominal <= 0) {
             view?.showErrorMessage("Please Input Correct Value")
         } else {
             view?.setConversionValue()
@@ -63,6 +66,10 @@ class ConvertPresenter {
         }
 
         return list
+    }
+
+    fun getSourceRate(): Float {
+        return currencyMap[currentCurrency] ?: 1f
     }
 
     interface View {

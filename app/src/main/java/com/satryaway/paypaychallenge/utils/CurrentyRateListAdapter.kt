@@ -6,32 +6,19 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.satryaway.paypaychallenge.R
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import com.satryaway.paypaychallenge.presenters.ConvertPresenter
 
-class ListAdapter() : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
-
+class CurrentyRateListAdapter(private var presenter: ConvertPresenter) :
+    RecyclerView.Adapter<CurrentyRateListAdapter.ViewHolder>() {
     var dataSet = arrayListOf<String>()
-    var currency = ""
-    var nominal = 1f
-    var mapsOfCurrency = hashMapOf<String, Float>()
-    var rate = 1f
-
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val currencyText: TextView = view.findViewById(R.id.currency_text)
         val rateText: TextView = view.findViewById(R.id.rate_text)
     }
 
-    fun refresh(
-        dataSet: ArrayList<String>,
-        mapsOfCurrency: HashMap<String, Float>
-    ) {
-        this.dataSet.clear()
-        this.mapsOfCurrency = hashMapOf()
-        this.dataSet = dataSet
-        this.mapsOfCurrency = mapsOfCurrency
+    fun refresh() {
+        this.dataSet = presenter.getCollectedList()
         notifyDataSetChanged()
     }
 
@@ -47,9 +34,12 @@ class ListAdapter() : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.currencyText.text = StringUtils.getCurrencyValue(dataSet.get(position), true)
-        val rate = mapsOfCurrency[StringUtils.getCurrencyValue(dataSet.get(position), true)]
-        val conversionRate = ((rate ?: 1f) / this.rate) * nominal
+        val currencyValue = StringUtils.getCurrencyValue(dataSet[position], true)
+        val rate = presenter.currencyMap[currencyValue]
+        val sourceRate = presenter.getSourceRate()
+        val conversionRate = ((rate ?: 1f) / sourceRate) * presenter.currentNominal
+
+        holder.currencyText.text = currencyValue
         holder.rateText.text = conversionRate.toString()
     }
 }

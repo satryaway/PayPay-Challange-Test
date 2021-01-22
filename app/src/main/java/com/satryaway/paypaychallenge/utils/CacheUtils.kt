@@ -2,11 +2,10 @@ package com.satryaway.paypaychallenge.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class Cache(pref: SharedPreferences) {
+class CacheUtils(pref: SharedPreferences) {
 
     private val preferences = pref
 
@@ -41,12 +40,12 @@ class Cache(pref: SharedPreferences) {
     }
 
     companion object {
-        private var instance: Cache? = null
+        private var instance: CacheUtils? = null
 
         @JvmStatic
-        fun get(context: Context): Cache? {
+        fun get(context: Context): CacheUtils? {
             if (instance != null) return instance
-            instance = Cache(
+            instance = CacheUtils(
                 context.getSharedPreferences(
                     Constants.PREFERENCES,
                     Context.MODE_PRIVATE

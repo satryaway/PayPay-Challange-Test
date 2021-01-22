@@ -10,19 +10,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.satryaway.paypaychallenge.presenters.ConvertPresenter
 import com.satryaway.paypaychallenge.utils.DialogUtils
-import com.satryaway.paypaychallenge.utils.ListAdapter
+import com.satryaway.paypaychallenge.utils.CurrentyRateListAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     ConvertPresenter.View {
-    private var listAdapter = ListAdapter()
-    private var arrayAdapter: ArrayAdapter<String>? = null
-
     private val presenter: ConvertPresenter = ConvertPresenter()
 
-    private var currencyList = arrayListOf<String>()
-    private var currentCurrency = "USD"
-    private var currentNominal = 1f
+    private var arrayAdapter: ArrayAdapter<String>? = null
+    private var listAdapter = CurrentyRateListAdapter(presenter)
 
     private var requireInit = true
 
@@ -36,8 +32,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         presenter.requestRate(this)
 
         btn_convert.setOnClickListener {
-            currentNominal = et_input_nominal.text.toString().toFloat()
-            presenter.convert(currentNominal)
+            presenter.currentNominal = et_input_nominal.text.toString().toFloat()
+            presenter.convert()
         }
     }
 
@@ -58,7 +54,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         arrayAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
-            currencyList
+            presenter.currencyList
         )
         arrayAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         with(currency_spinner) {
@@ -71,20 +67,17 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     private fun refreshView() {
         // Reset Spinner Adapter
         arrayAdapter?.clear()
-        arrayAdapter?.addAll(currencyList)
+        arrayAdapter?.addAll(presenter.currencyList)
         arrayAdapter?.notifyDataSetChanged()
 
         // Reset List of Currency
-        listAdapter.currency = currentCurrency
-        listAdapter.nominal = currentNominal
-        listAdapter.rate = presenter.currencyMap[currentCurrency] ?: 1f
-        listAdapter.refresh(presenter.getCollectedList(), presenter.currencyMap)
+        listAdapter.refresh()
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {}
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        currentCurrency = currencyList[position]
+        presenter.currentCurrency = presenter.currencyList[position]
         if (requireInit) {
             refreshView()
             requireInit = false
@@ -101,7 +94,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
 
     override fun onFetchedCurrency(currenciesValue: ArrayList<String>) {
         runOnUiThread {
-            this.currencyList = currenciesValue
+            presenter.currencyList = currenciesValue
             refreshView()
         }
     }
