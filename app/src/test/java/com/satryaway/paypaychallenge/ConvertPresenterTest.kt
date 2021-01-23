@@ -1,20 +1,26 @@
 package com.satryaway.paypaychallenge
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
 import com.satryaway.paypaychallenge.presenters.ConvertPresenter
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class ConvertPresenterTest {
     private val presenter = ConvertPresenter()
+    private lateinit var view: ConvertPresenter.View
+
+    @Before
+    fun setup() {
+        view = mock(ConvertPresenter.View::class.java)
+    }
 
     @Test
     fun `convert correct nominal will return correct value`() {
         // Given
-        val view: ConvertPresenter.View = mock()
         val mockNominal = "135"
         presenter.attachView(view)
 
@@ -28,7 +34,6 @@ class ConvertPresenterTest {
     @Test
     fun `convert false nominal will return correct value`() {
         // Given
-        val view: ConvertPresenter.View = mock()
         val mockNominal = "a1b2c3"
         presenter.attachView(view)
 
@@ -42,7 +47,6 @@ class ConvertPresenterTest {
     @Test
     fun `convert empty will return correct value`() {
         // Given
-        val view: ConvertPresenter.View = mock()
         val mockNominal = ""
         presenter.attachView(view)
 
@@ -56,7 +60,6 @@ class ConvertPresenterTest {
     @Test
     fun `convert zero will return correct value`() {
         // Given
-        val view: ConvertPresenter.View = mock()
         val mockNominal = "0"
         presenter.attachView(view)
 
