@@ -2,8 +2,6 @@ package com.satryaway.paypaychallenge
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
 import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.Constants
 import org.junit.Test
@@ -68,7 +66,7 @@ class CacheUtilsTest {
         assert(isTimeExpired.not())
     }
 
-    fun mockPreference(minutes: Int) {
+    private fun mockPreference(minutes: Int) {
         val date = Date().time - (minutes * 60 * 1000)
         val mockEditor = mock(SharedPreferences.Editor::class.java)
 

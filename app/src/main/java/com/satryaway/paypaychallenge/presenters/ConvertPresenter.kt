@@ -5,12 +5,9 @@ import androidx.annotation.VisibleForTesting
 import com.satryaway.paypaychallenge.repos.LiveRepository
 import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.StringUtils
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.lang.NumberFormatException
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ConvertPresenter {
     private var view: View? = null
@@ -35,7 +32,7 @@ class ConvertPresenter {
     fun requestRate(context: Context) {
         val cache = CacheUtils.get(context)
         if (cache?.isCurrencyExpired() == true) {
-            GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch {
                 val result = liveRepository.live()
                 result.quotes?.let {
                     cache.saveCurrencies(it) { currencyMap, isSaved ->
