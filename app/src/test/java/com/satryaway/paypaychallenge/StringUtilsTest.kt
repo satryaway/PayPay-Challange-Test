@@ -2,6 +2,7 @@ package com.satryaway.paypaychallenge
 
 import com.satryaway.paypaychallenge.utils.StringUtils
 import org.junit.Test
+import java.util.*
 
 class StringUtilsTest {
 
@@ -77,9 +78,10 @@ class StringUtilsTest {
             Pair("USD", 14050.0),
             Pair("IDR", 130.90)
         )
+        val currencyMap = TreeMap(maps)
 
         // When
-        val listOfCurrency = StringUtils.getCurrenciesValue(maps)
+        val listOfCurrency = StringUtils.getCurrenciesValue(currencyMap)
 
         // Then
         assert(listOfCurrency.contains("USD"))
@@ -89,8 +91,8 @@ class StringUtilsTest {
     @Test
     fun `text must return decimal format`() {
         // Given
-        val currencyRate = 1_305_019.0
-        val mockValue = "1,305,019.00"
+        val currencyRate = 1_305_019.01
+        val mockValue = "1,305,019.010"
 
         // When
         val formattedRate = StringUtils.getThousandSeparator(currencyRate)

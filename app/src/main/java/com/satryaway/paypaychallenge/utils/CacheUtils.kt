@@ -2,11 +2,9 @@ package com.satryaway.paypaychallenge.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.*
-import kotlin.collections.HashMap
 
 class CacheUtils(pref: SharedPreferences) {
 
@@ -27,11 +25,11 @@ class CacheUtils(pref: SharedPreferences) {
     }
 
     fun saveCurrencies(
-        quotes: HashMap<String, Double>?,
-        onSave: (HashMap<String, Double>, Boolean) -> Unit
+        quotes: TreeMap<String, Double>?,
+        onSave: (TreeMap<String, Double>, Boolean) -> Unit
     ) {
         if (quotes != null) {
-            val currencyMap = hashMapOf<String, Double>()
+            val currencyMap = TreeMap<String, Double>()
             quotes.forEach {
                 val currency = StringUtils.getCurrencyInitial(it.key)
                 currencyMap[currency] = it.value
@@ -46,15 +44,16 @@ class CacheUtils(pref: SharedPreferences) {
 
             onSave.invoke(currencyMap, true)
         } else {
-            onSave.invoke(hashMapOf(), false)
+            onSave.invoke(TreeMap(), false)
         }
     }
 
-    fun initCurrencies(onFetchCurrency: (HashMap<String, Double>) -> Unit) {
+    fun initCurrencies(onFetchCurrency: (TreeMap<String, Double>) -> Unit) {
         val jsonString = preferences.getString(Constants.CURRENCY, "")
-        val token = object : TypeToken<HashMap<String, Double>>() {}.type
+        val token = object : TypeToken<TreeMap<String, Double>>() {}.type
+        val currencyMap: TreeMap<String, Double> = Gson().fromJson(jsonString, token)
         if (jsonString.isNullOrEmpty().not()) {
-            onFetchCurrency.invoke(Gson().fromJson(jsonString, token))
+            onFetchCurrency.invoke(currencyMap)
         }
     }
 

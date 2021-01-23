@@ -9,6 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.NumberFormatException
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ConvertPresenter {
     private var view: View? = null
@@ -20,7 +22,7 @@ class ConvertPresenter {
     var currentCurrency = "USD"
     var currentNominal = 1.0
 
-    var currencyMap = hashMapOf<String, Double>()
+    var currencyMap = TreeMap<String, Double>()
 
     fun attachView(view: View) {
         this.view = view

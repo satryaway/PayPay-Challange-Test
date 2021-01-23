@@ -1,5 +1,8 @@
 package com.satryaway.paypaychallenge.utils
 
+import java.util.*
+import kotlin.collections.ArrayList
+
 object StringUtils {
     fun getCurrencyValue(text: String, isKey: Boolean): String {
         return try {
@@ -13,7 +16,7 @@ object StringUtils {
         }
     }
 
-    fun getCurrenciesValue(quotes: HashMap<String, Double>): ArrayList<String> {
+    fun getCurrenciesValue(quotes: TreeMap<String, Double>): ArrayList<String> {
         val list = arrayListOf<String>()
         quotes.forEach {
             list.add(getCurrencyInitial(it.key))
@@ -31,6 +34,6 @@ object StringUtils {
     }
 
     fun getThousandSeparator(conversionRate: Double): String {
-        return String.format("%,.2f", conversionRate)
+        return String.format("%,.3f", conversionRate)
     }
 }
