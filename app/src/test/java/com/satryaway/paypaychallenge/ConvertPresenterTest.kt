@@ -71,7 +71,7 @@ class ConvertPresenterTest {
     fun `map will return correct list of currency`() {
         // Given
         val currencyInitial = "IDR"
-        val currencyRate = 14030.0f
+        val currencyRate = 14030.0
         presenter.currencyMap[currencyInitial] = currencyRate
 
         // When
@@ -86,7 +86,7 @@ class ConvertPresenterTest {
     fun `map will return correct rate`() {
         // Given
         val currencyInitial = "IDR"
-        val currencyRate = 14030.0f
+        val currencyRate = 14030.0
         presenter.currencyMap[currencyInitial] = currencyRate
         presenter.currentCurrency = currencyInitial
 

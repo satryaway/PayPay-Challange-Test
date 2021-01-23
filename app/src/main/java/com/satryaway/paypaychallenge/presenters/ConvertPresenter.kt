@@ -18,9 +18,9 @@ class ConvertPresenter {
 
     var currencyList = arrayListOf<String>()
     var currentCurrency = "USD"
-    var currentNominal = 1f
+    var currentNominal = 1.0
 
-    var currencyMap = hashMapOf<String, Float>()
+    var currencyMap = hashMapOf<String, Double>()
 
     fun attachView(view: View) {
         this.view = view
@@ -56,7 +56,7 @@ class ConvertPresenter {
 
     fun convert(nominal: String) {
         try {
-            this.currentNominal = nominal.toFloat()
+            this.currentNominal = nominal.toDouble()
             if (currentNominal <= 0) {
                 view?.showErrorMessage("Please Input Correct Value")
             } else {
@@ -77,8 +77,8 @@ class ConvertPresenter {
         return list
     }
 
-    fun getSourceRate(): Float {
-        return currencyMap[currentCurrency] ?: 1f
+    fun getSourceRate(): Double {
+        return currencyMap[currentCurrency] ?: 1.0
     }
 
     interface View {

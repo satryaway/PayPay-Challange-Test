@@ -27,11 +27,11 @@ class CacheUtils(pref: SharedPreferences) {
     }
 
     fun saveCurrencies(
-        quotes: HashMap<String, Float>?,
-        onSave: (HashMap<String, Float>, Boolean) -> Unit
+        quotes: HashMap<String, Double>?,
+        onSave: (HashMap<String, Double>, Boolean) -> Unit
     ) {
         if (quotes != null) {
-            val currencyMap = hashMapOf<String, Float>()
+            val currencyMap = hashMapOf<String, Double>()
             quotes.forEach {
                 val currency = StringUtils.getCurrencyInitial(it.key)
                 currencyMap[currency] = it.value
@@ -50,9 +50,9 @@ class CacheUtils(pref: SharedPreferences) {
         }
     }
 
-    fun initCurrencies(onFetchCurrency: (HashMap<String, Float>) -> Unit) {
+    fun initCurrencies(onFetchCurrency: (HashMap<String, Double>) -> Unit) {
         val jsonString = preferences.getString(Constants.CURRENCY, "")
-        val token = object : TypeToken<HashMap<String, Float>>() {}.type
+        val token = object : TypeToken<HashMap<String, Double>>() {}.type
         if (jsonString.isNullOrEmpty().not()) {
             onFetchCurrency.invoke(Gson().fromJson(jsonString, token))
         }

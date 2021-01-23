@@ -74,8 +74,8 @@ class StringUtilsTest {
     fun `the whole list of map will return correct array list`() {
         // Given
         val maps = hashMapOf(
-            Pair("USD", 14050f),
-            Pair("IDR", 130.90f)
+            Pair("USD", 14050.0),
+            Pair("IDR", 130.90)
         )
 
         // When
@@ -84,5 +84,18 @@ class StringUtilsTest {
         // Then
         assert(listOfCurrency.contains("USD"))
         assert(listOfCurrency.contains("IDR"))
+    }
+
+    @Test
+    fun `text must return decimal format`() {
+        // Given
+        val currencyRate = 1_305_019.0
+        val mockValue = "1,305,019.00"
+
+        // When
+        val formattedRate = StringUtils.getThousandSeparator(currencyRate)
+
+        // Then
+        assert(mockValue == formattedRate)
     }
 }

@@ -13,7 +13,7 @@ object StringUtils {
         }
     }
 
-    fun getCurrenciesValue(quotes: HashMap<String, Float>): ArrayList<String> {
+    fun getCurrenciesValue(quotes: HashMap<String, Double>): ArrayList<String> {
         val list = arrayListOf<String>()
         quotes.forEach {
             list.add(getCurrencyInitial(it.key))
@@ -28,5 +28,9 @@ object StringUtils {
         } else {
             text
         }
+    }
+
+    fun getThousandSeparator(conversionRate: Double): String {
+        return String.format("%,.2f", conversionRate)
     }
 }

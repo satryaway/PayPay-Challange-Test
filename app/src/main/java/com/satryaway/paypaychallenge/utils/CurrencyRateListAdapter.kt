@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.satryaway.paypaychallenge.R
 import com.satryaway.paypaychallenge.presenters.ConvertPresenter
 
-class CurrentyRateListAdapter(private var presenter: ConvertPresenter) :
-    RecyclerView.Adapter<CurrentyRateListAdapter.ViewHolder>() {
-    var dataSet = arrayListOf<String>()
+class CurrencyRateListAdapter(private var presenter: ConvertPresenter) :
+    RecyclerView.Adapter<CurrencyRateListAdapter.ViewHolder>() {
+    private var dataSet = arrayListOf<String>()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val currencyText: TextView = view.findViewById(R.id.currency_text)
@@ -37,9 +37,9 @@ class CurrentyRateListAdapter(private var presenter: ConvertPresenter) :
         val currencyValue = StringUtils.getCurrencyValue(dataSet[position], true)
         val rate = presenter.currencyMap[currencyValue]
         val sourceRate = presenter.getSourceRate()
-        val conversionRate = ((rate ?: 1f) / sourceRate) * presenter.currentNominal
+        val conversionRate = ((rate ?: 1.0) / sourceRate) * presenter.currentNominal
 
         holder.currencyText.text = currencyValue
-        holder.rateText.text = conversionRate.toString()
+        holder.rateText.text = StringUtils.getThousandSeparator(conversionRate)
     }
 }
