@@ -19,7 +19,7 @@ object StringUtils {
     fun getCurrenciesValue(quotes: TreeMap<String, Double>): ArrayList<String> {
         val list = arrayListOf<String>()
         quotes.forEach {
-            list.add(getCurrencyInitial(it.key))
+            list.add(it.key)
         }
 
         return list

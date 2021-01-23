@@ -5,8 +5,10 @@ import com.satryaway.paypaychallenge.utils.ApiService
 import com.satryaway.paypaychallenge.utils.Constants
 import retrofit2.await
 
-class LiveRepository {
+class ApiRepository {
     var client: ApiService = Api.webService
 
     suspend fun live() = client.getLiveCurrency(Constants.access_key).await()
+
+    suspend fun list() = client.getListCurrency(Constants.access_key).await()
 }

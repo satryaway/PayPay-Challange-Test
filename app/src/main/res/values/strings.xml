@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Rate Exchange App</string>
-    <string name="currency">Currency</string>
-    <string name="rate">Rate</string>
+    <string name="currency">IDR</string>
+    <string name="rate">14,500.21</string>
     <string name="convert">Convert</string>
+    <string name="currency_name">Indonesian Rupiah</string>
 </resources>

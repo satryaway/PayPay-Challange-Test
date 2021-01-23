@@ -18,8 +18,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     private val presenter: ConvertPresenter = ConvertPresenter()
 
     private var arrayAdapter: ArrayAdapter<String>? = null
-    private var listAdapter =
-        CurrencyRateListAdapter(presenter)
+    private var listAdapter = CurrencyRateListAdapter(presenter)
 
     private var requireInit = true
 

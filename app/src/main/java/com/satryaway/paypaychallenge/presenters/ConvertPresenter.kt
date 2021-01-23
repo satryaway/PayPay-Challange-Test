@@ -2,24 +2,26 @@ package com.satryaway.paypaychallenge.presenters
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import com.satryaway.paypaychallenge.repos.LiveRepository
+import com.satryaway.paypaychallenge.repos.ApiRepository
 import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.StringUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.HashMap
 
 class ConvertPresenter {
     private var view: View? = null
 
     @VisibleForTesting
-    val liveRepository = LiveRepository()
+    val liveRepository = ApiRepository()
 
     var currencyList = arrayListOf<String>()
     var currentCurrency = "USD"
     var currentNominal = 1.0
 
     var currencyMap = TreeMap<String, Double>()
+    var currencyNameMap = HashMap<String, String>()
 
     fun attachView(view: View) {
         this.view = view
@@ -34,21 +36,26 @@ class ConvertPresenter {
         if (cache?.isCurrencyExpired() == true) {
             GlobalScope.launch {
                 val result = liveRepository.live()
-                result.quotes?.let {
-                    cache.saveCurrencies(it) { currencyMap, isSaved ->
-                        if (isSaved) {
-                            this@ConvertPresenter.currencyMap = currencyMap
-                            view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
-                        } else {
-                            view?.onFailedSavingCurrency("Failed to Store Data")
-                        }
+                val listCurrency = liveRepository.list()
+                cache.saveCurrencies(
+                    result.quotes,
+                    listCurrency.currencies
+                ) { currencyMap, currencyNameMap, isSaved ->
+                    if (isSaved) {
+                        this@ConvertPresenter.currencyNameMap = currencyNameMap
+                        this@ConvertPresenter.currencyMap = currencyMap
+                        view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
+                    } else {
+                        view?.onFailedSavingCurrency("Failed to Store Data")
                     }
                 }
+
             }
         } else {
-            cache?.initCurrencies {
-                this@ConvertPresenter.currencyMap = it
-                view?.onFetchedCurrency(StringUtils.getCurrenciesValue(it))
+            cache?.initCurrencies { currencyMap, currencyNameMap ->
+                this@ConvertPresenter.currencyMap = currencyMap
+                this@ConvertPresenter.currencyNameMap = currencyNameMap
+                view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
             }
         }
     }
@@ -69,7 +76,7 @@ class ConvertPresenter {
     fun getCollectedList(): ArrayList<String> {
         val list = arrayListOf<String>()
         currencyMap.forEach {
-            val text = "${StringUtils.getCurrencyInitial(it.key)};${it.value}"
+            val text = "${it.key};${it.value}"
             list.add(text)
         }
 

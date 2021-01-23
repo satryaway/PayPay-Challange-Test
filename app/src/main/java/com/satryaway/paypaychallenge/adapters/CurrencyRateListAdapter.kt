@@ -16,6 +16,7 @@ class CurrencyRateListAdapter(private var presenter: ConvertPresenter) :
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val currencyText: TextView = view.findViewById(R.id.currency_text)
         val rateText: TextView = view.findViewById(R.id.rate_text)
+        val currencyNameText: TextView = view.findViewById(R.id.currency_name_text)
     }
 
     fun refresh() {
@@ -47,6 +48,7 @@ class CurrencyRateListAdapter(private var presenter: ConvertPresenter) :
         val conversionRate = ((rate ?: 1.0) / sourceRate) * presenter.currentNominal
 
         holder.currencyText.text = currencyValue
+        holder.currencyNameText.text = presenter.currencyNameMap[currencyValue]
         holder.rateText.text =
             StringUtils.getThousandSeparator(
                 conversionRate
