@@ -1,4 +1,8 @@
-# Rate Conversion App
+# Disclaimer
+Using DEBUG .apk mode will show dummy data. To refer data from https://currencylayer.com/documentation, please use RELEASE .apk -> https://github.com/satryaway/paypay_challenge/blob/master/app/release/app-release.apk. Thank you!
+
+
+# Rate Conversion App v1.0
 This app is proposed to submit a code challenge provided by PayPay company
 
 # Features
