@@ -8,9 +8,9 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.satryaway.paypaychallenge.adapters.CurrencyRateListAdapter
 import com.satryaway.paypaychallenge.presenters.ConvertPresenter
 import com.satryaway.paypaychallenge.utils.DialogUtils
-import com.satryaway.paypaychallenge.adapters.CurrencyRateListAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         }
     }
 
-    override fun onFailedSavingCurrency(message: String) {
+    override fun onFailedFetchingCurrency(message: String) {
         DialogUtils.showToast(this, message)
     }
 }

@@ -10,10 +10,10 @@ interface ApiService {
     @GET("live")
     fun getLiveCurrency(
         @Query("access_key") status: String
-    ): Call<LiveModel>
+    ): Call<LiveModel?>
 
     @GET("list")
     fun getListCurrency(
         @Query("access_key") status: String
-    ): Call<CurrencyModel>
+    ): Call<CurrencyModel?>
 }

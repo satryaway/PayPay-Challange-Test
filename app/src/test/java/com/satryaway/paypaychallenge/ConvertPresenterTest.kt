@@ -1,28 +1,40 @@
 package com.satryaway.paypaychallenge
 
+import android.content.Context
+import android.content.SharedPreferences
+import com.satryaway.paypaychallenge.models.CurrencyModel
+import com.satryaway.paypaychallenge.models.ErrorModel
+import com.satryaway.paypaychallenge.models.LiveModel
 import com.satryaway.paypaychallenge.presenters.ConvertPresenter
+import com.satryaway.paypaychallenge.utils.CacheUtils
+import com.satryaway.paypaychallenge.utils.Constants
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.*
 
 @RunWith(MockitoJUnitRunner::class)
 class ConvertPresenterTest {
     private val presenter = ConvertPresenter()
     private lateinit var view: ConvertPresenter.View
+    private lateinit var cacheUtils: CacheUtils
+    private val sharedPrefs = mock(SharedPreferences::class.java)
+    private val mockEditor = mock(SharedPreferences.Editor::class.java)
+    private val context = mock(Context::class.java)
 
     @Before
     fun setup() {
         view = mock(ConvertPresenter.View::class.java)
+        cacheUtils = CacheUtils(sharedPrefs)
+        presenter.attachView(view)
     }
 
     @Test
     fun `convert correct nominal will return correct value`() {
         // Given
         val mockNominal = "135"
-        presenter.attachView(view)
 
         // When
         presenter.convert(mockNominal)
@@ -35,7 +47,6 @@ class ConvertPresenterTest {
     fun `convert false nominal will return correct value`() {
         // Given
         val mockNominal = "a1b2c3"
-        presenter.attachView(view)
 
         // When
         presenter.convert(mockNominal)
@@ -48,7 +59,6 @@ class ConvertPresenterTest {
     fun `convert empty will return correct value`() {
         // Given
         val mockNominal = ""
-        presenter.attachView(view)
 
         // When
         presenter.convert(mockNominal)
@@ -61,7 +71,6 @@ class ConvertPresenterTest {
     fun `convert zero will return correct value`() {
         // Given
         val mockNominal = "0"
-        presenter.attachView(view)
 
         // When
         presenter.convert(mockNominal)
@@ -84,7 +93,6 @@ class ConvertPresenterTest {
         assert(mockList.contains("$currencyInitial;$currencyRate"))
     }
 
-
     @Test
     fun `map will return correct rate`() {
         // Given
@@ -98,5 +106,143 @@ class ConvertPresenterTest {
 
         // Then
         assert(mockRate.equals(currencyRate))
+    }
+
+    @Test
+    fun `successful handle request will return correct value`() {
+        // Given
+        `when`(sharedPrefs.edit()).thenReturn(mockEditor)
+        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
+        val currencyMap = TreeMap(maps)
+        val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
+
+        val mockCurrency = CurrencyModel(
+            success = true,
+            currencies = hashMapOf(
+                Pair("IDR", "Indonesian Rupiah"),
+                Pair("USD", "United State Dollar")
+            ),
+            error = null
+        )
+        `when`(mockEditor.putLong(anyString(), anyLong())).thenReturn(mockEditor)
+
+        // When
+        presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
+
+        // Then
+        verify(view).onFetchedCurrency(arrayListOf("IDR", "USD"))
+    }
+
+    @Test
+    fun `failed request will return correct information`() {
+        // Given
+        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
+        val currencyMap = TreeMap(maps)
+        val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
+
+        val mockCurrency: CurrencyModel? = null
+
+        // When
+        presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
+
+        // Then
+        verify(view).onFailedFetchingCurrency("Unknown Error")
+    }
+
+    @Test
+    fun `failed request currency will return correct information`() {
+        // Given
+        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
+        val currencyMap = TreeMap(maps)
+        val errorMsg = "Your monthly usage limit has been reached. " +
+                "Please upgrade your subscription plan."
+        val mockLive = LiveModel(success = true, quotes = currencyMap, error = ErrorModel(errorMsg))
+
+        val mockCurrency: CurrencyModel? = null
+
+        // When
+        presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
+
+        // Then
+        verify(view).onFailedFetchingCurrency("Unknown Error")
+    }
+
+    @Test
+    fun `failed currency request handle request will return correct value`() {
+        // Given
+        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
+        val currencyMap = TreeMap(maps)
+        val errorMsg = "Your monthly usage limit has been reached. " +
+                "Please upgrade your subscription plan."
+        val mockLive =
+            LiveModel(success = false, quotes = currencyMap, error = ErrorModel(errorMsg))
+
+        val mockCurrency = CurrencyModel(
+            success = true,
+            currencies = hashMapOf(
+                Pair("IDR", "Indonesian Rupiah"),
+                Pair("USD", "United State Dollar")
+            ),
+            error = null
+        )
+
+        // When
+        presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
+
+        // Then
+        verify(view).onFailedFetchingCurrency(errorMsg)
+    }
+
+    @Test
+    fun `failed currency name request handle request will return correct value`() {
+        // Given
+        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
+        val currencyMap = TreeMap(maps)
+        val errorMsg = "Your account is not active. Please get in touch with Customer Support."
+        val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
+
+        val mockCurrency = CurrencyModel(
+            success = false,
+            currencies = hashMapOf(
+                Pair("IDR", "Indonesian Rupiah"),
+                Pair("USD", "United State Dollar")
+            ),
+            error = ErrorModel(errorMsg)
+        )
+
+        // When
+        presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
+
+        // Then
+        verify(view).onFailedFetchingCurrency(errorMsg)
+    }
+
+    @Test
+    fun `return data from cache if data is not expired`() {
+        // Given
+        val rangeBetweenLastFetch = 20
+        val date = Date().time - (rangeBetweenLastFetch * 60 * 1000)
+        val mockEditor = mock(SharedPreferences.Editor::class.java)
+        val currencyList = arrayListOf("IDR", "USD")
+
+        presenter.attachView(view)
+
+        `when`(context.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE))
+            .thenReturn(sharedPrefs)
+        `when`(sharedPrefs.edit())
+            .thenReturn(mockEditor)
+        `when`(sharedPrefs.getString(Constants.CURRENCY, ""))
+            .thenReturn("{\"IDR\" : 14050.5, \"USD\" : 135.55}")
+        `when`(sharedPrefs.getString(Constants.CURRENCY_NAME, ""))
+            .thenReturn("{\"IDR\" : \"Indonesian Rupiah\", " +
+                    "\"USD\" : \"United State Dollar\"}")
+        `when`(sharedPrefs.getLong(Constants.TIME_FLAG, 0))
+            .thenReturn(date)
+
+        // When
+        presenter.requestRate(context)
+
+        // Then
+        verify(view).onFetchedCurrency(currencyList)
     }
 }

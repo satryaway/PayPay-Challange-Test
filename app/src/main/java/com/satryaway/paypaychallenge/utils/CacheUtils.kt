@@ -14,8 +14,9 @@ class CacheUtils(pref: SharedPreferences) {
     fun isCurrencyExpired(): Boolean {
         val isCacheEmpty = preferences.getString(Constants.CURRENCY, "").isNullOrEmpty()
         val timeFlag = Date(preferences.getLong(Constants.TIME_FLAG, 0))
+        val isExpired = isMoreThanDesignatedTimeToFetchCurrency(timeFlag)
 
-        return isMoreThanDesignatedTimeToFetchCurrency(timeFlag) || isCacheEmpty
+        return isExpired || isCacheEmpty
     }
 
     fun isMoreThanDesignatedTimeToFetchCurrency(timeFlag: Date): Boolean {

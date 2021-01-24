@@ -2,6 +2,10 @@ package com.satryaway.paypaychallenge.presenters
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.satryaway.paypaychallenge.BuildConfig
+import com.satryaway.paypaychallenge.mocks.MockData
+import com.satryaway.paypaychallenge.models.CurrencyModel
+import com.satryaway.paypaychallenge.models.LiveModel
 import com.satryaway.paypaychallenge.repos.ApiRepository
 import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.StringUtils
@@ -35,9 +39,34 @@ class ConvertPresenter {
         val cache = CacheUtils.get(context)
         if (cache?.isCurrencyExpired() == true) {
             GlobalScope.launch {
-                val result = liveRepository.live()
-                val listCurrency = liveRepository.list()
-                cache.saveCurrencies(
+                var result: LiveModel? = null
+                var listCurrency: CurrencyModel? = null
+                if (BuildConfig.DEBUG) {
+                    result = MockData.getLiveMock()
+                    listCurrency = MockData.getCurrencyMock()
+                } else {
+                    result = liveRepository.live()
+                    listCurrency = liveRepository.list()
+                }
+                handleRequestRate(cache, result, listCurrency)
+            }
+        } else {
+            cache?.initCurrencies { currencyMap, currencyNameMap ->
+                this@ConvertPresenter.currencyMap = currencyMap
+                this@ConvertPresenter.currencyNameMap = currencyNameMap
+                view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
+            }
+        }
+    }
+
+    fun handleRequestRate(
+        cache: CacheUtils?,
+        result: LiveModel?,
+        listCurrency: CurrencyModel?
+    ) {
+        if (result != null && listCurrency != null) {
+            if (result.success == true && listCurrency.success == true) {
+                cache?.saveCurrencies(
                     result.quotes,
                     listCurrency.currencies
                 ) { currencyMap, currencyNameMap, isSaved ->
@@ -46,17 +75,26 @@ class ConvertPresenter {
                         this@ConvertPresenter.currencyMap = currencyMap
                         view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
                     } else {
-                        view?.onFailedSavingCurrency("Failed to Store Data")
+                        view?.onFailedFetchingCurrency("Failed to Fetch Data")
                     }
                 }
-
+            } else {
+                view?.onFailedFetchingCurrency(
+                    when {
+                        result.error != null -> {
+                            result.error.info
+                        }
+                        listCurrency.error != null -> {
+                            listCurrency.error.info
+                        }
+                        else -> {
+                            "Unknown Error"
+                        }
+                    }
+                )
             }
         } else {
-            cache?.initCurrencies { currencyMap, currencyNameMap ->
-                this@ConvertPresenter.currencyMap = currencyMap
-                this@ConvertPresenter.currencyNameMap = currencyNameMap
-                view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
-            }
+            view?.onFailedFetchingCurrency("Unknown Error")
         }
     }
 
@@ -91,6 +129,6 @@ class ConvertPresenter {
         fun setConversionValue()
         fun showErrorMessage(message: String)
         fun onFetchedCurrency(currenciesValue: ArrayList<String>)
-        fun onFailedSavingCurrency(message: String)
+        fun onFailedFetchingCurrency(message: String)
     }
 }
