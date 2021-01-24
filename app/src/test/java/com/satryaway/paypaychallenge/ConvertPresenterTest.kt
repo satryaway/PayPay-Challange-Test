@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.satryaway.paypaychallenge.mocks.MockData
 import com.satryaway.paypaychallenge.models.CurrencyModel
-import com.satryaway.paypaychallenge.models.ErrorModel
 import com.satryaway.paypaychallenge.models.LiveModel
 import com.satryaway.paypaychallenge.presenters.ConvertPresenter
 import com.satryaway.paypaychallenge.utils.CacheUtils
@@ -113,17 +112,8 @@ class ConvertPresenterTest {
     fun `successful handle request will return correct value`() {
         // Given
         `when`(sharedPrefs.edit()).thenReturn(mockEditor)
-        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
-        val currencyMap = TreeMap(maps)
-        val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
-        val mockCurrency = CurrencyModel(
-            success = true,
-            currencies = hashMapOf(
-                Pair("IDR", "Indonesian Rupiah"),
-                Pair("USD", "United State Dollar")
-            ),
-            error = null
-        )
+        val mockLive = MockData.getLiveMock()
+        val mockCurrency = MockData.getCurrencyMock()
         `when`(mockEditor.putLong(anyString(), anyLong())).thenReturn(mockEditor)
 
         // When
@@ -151,9 +141,7 @@ class ConvertPresenterTest {
     @Test
     fun `failed request currency will return correct information`() {
         // Given
-        val errorMsg = "Your monthly usage limit has been reached. " +
-                "Please upgrade your subscription plan."
-        val mockLive = LiveModel(success = true, quotes = null, error = ErrorModel(errorMsg))
+        val mockLive = MockData.getLiveMockFailed()
         val mockCurrency: CurrencyModel? = null
 
         // When

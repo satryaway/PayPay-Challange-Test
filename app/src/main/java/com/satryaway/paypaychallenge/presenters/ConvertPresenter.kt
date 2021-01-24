@@ -39,8 +39,8 @@ class ConvertPresenter {
         val cache = CacheUtils.get(context)
         if (cache?.isCurrencyExpired() == true) {
             GlobalScope.launch {
-                var result: LiveModel? = null
-                var listCurrency: CurrencyModel? = null
+                val result: LiveModel?
+                val listCurrency: CurrencyModel?
                 if (BuildConfig.DEBUG) {
                     result = MockData.getLiveMock()
                     listCurrency = MockData.getCurrencyMock()
