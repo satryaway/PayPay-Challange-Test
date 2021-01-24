@@ -15,6 +15,6 @@ Kotlin
 Git, Retrofit2, Coroutines, Gson, Mockito
 
 # Screenshot
-![alt text](https://github.com/satryaway/paypay_challenge/blob/master/image/Screenshot.png)
+![alt text](https://github.com/satryaway/paypay_challenge/blob/master/image/screenshot.jpg)
 
 # Arigatou Gozaimasu!
