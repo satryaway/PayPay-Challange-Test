@@ -2,24 +2,30 @@ package com.satryaway.paypaychallenge.presenters
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import com.satryaway.paypaychallenge.repos.LiveRepository
+import com.satryaway.paypaychallenge.BuildConfig
+import com.satryaway.paypaychallenge.mocks.MockData
+import com.satryaway.paypaychallenge.models.CurrencyModel
+import com.satryaway.paypaychallenge.models.LiveModel
+import com.satryaway.paypaychallenge.repos.ApiRepository
 import com.satryaway.paypaychallenge.utils.CacheUtils
 import com.satryaway.paypaychallenge.utils.StringUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.HashMap
 
 class ConvertPresenter {
     private var view: View? = null
 
     @VisibleForTesting
-    val liveRepository = LiveRepository()
+    val liveRepository = ApiRepository()
 
     var currencyList = arrayListOf<String>()
     var currentCurrency = "USD"
     var currentNominal = 1.0
 
     var currencyMap = TreeMap<String, Double>()
+    var currencyNameMap = HashMap<String, String>()
 
     fun attachView(view: View) {
         this.view = view
@@ -33,23 +39,62 @@ class ConvertPresenter {
         val cache = CacheUtils.get(context)
         if (cache?.isCurrencyExpired() == true) {
             GlobalScope.launch {
-                val result = liveRepository.live()
-                result.quotes?.let {
-                    cache.saveCurrencies(it) { currencyMap, isSaved ->
-                        if (isSaved) {
-                            this@ConvertPresenter.currencyMap = currencyMap
-                            view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
-                        } else {
-                            view?.onFailedSavingCurrency("Failed to Store Data")
-                        }
-                    }
+                val result: LiveModel?
+                val listCurrency: CurrencyModel?
+                if (BuildConfig.DEBUG) {
+                    result = MockData.getLiveMock()
+                    listCurrency = MockData.getCurrencyMock()
+                } else {
+                    result = liveRepository.live()
+                    listCurrency = liveRepository.list()
                 }
+                handleRequestRate(cache, result, listCurrency)
             }
         } else {
-            cache?.initCurrencies {
-                this@ConvertPresenter.currencyMap = it
-                view?.onFetchedCurrency(StringUtils.getCurrenciesValue(it))
+            cache?.initCurrencies { currencyMap, currencyNameMap ->
+                this@ConvertPresenter.currencyMap = currencyMap
+                this@ConvertPresenter.currencyNameMap = currencyNameMap
+                view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
             }
+        }
+    }
+
+    fun handleRequestRate(
+        cache: CacheUtils?,
+        result: LiveModel?,
+        listCurrency: CurrencyModel?
+    ) {
+        if (result != null && listCurrency != null) {
+            if (result.success == true && listCurrency.success == true) {
+                cache?.saveCurrencies(
+                    result.quotes,
+                    listCurrency.currencies
+                ) { currencyMap, currencyNameMap, isSaved ->
+                    if (isSaved) {
+                        this@ConvertPresenter.currencyNameMap = currencyNameMap
+                        this@ConvertPresenter.currencyMap = currencyMap
+                        view?.onFetchedCurrency(StringUtils.getCurrenciesValue(currencyMap))
+                    } else {
+                        view?.onFailedFetchingCurrency("Failed to Fetch Data")
+                    }
+                }
+            } else {
+                view?.onFailedFetchingCurrency(
+                    when {
+                        result.error != null -> {
+                            result.error.info
+                        }
+                        listCurrency.error != null -> {
+                            listCurrency.error.info
+                        }
+                        else -> {
+                            "Unknown Error"
+                        }
+                    }
+                )
+            }
+        } else {
+            view?.onFailedFetchingCurrency("Unknown Error")
         }
     }
 
@@ -69,7 +114,7 @@ class ConvertPresenter {
     fun getCollectedList(): ArrayList<String> {
         val list = arrayListOf<String>()
         currencyMap.forEach {
-            val text = "${StringUtils.getCurrencyInitial(it.key)};${it.value}"
+            val text = "${it.key};${it.value}"
             list.add(text)
         }
 
@@ -84,6 +129,6 @@ class ConvertPresenter {
         fun setConversionValue()
         fun showErrorMessage(message: String)
         fun onFetchedCurrency(currenciesValue: ArrayList<String>)
-        fun onFailedSavingCurrency(message: String)
+        fun onFailedFetchingCurrency(message: String)
     }
 }

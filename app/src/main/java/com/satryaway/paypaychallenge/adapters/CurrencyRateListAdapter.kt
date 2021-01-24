@@ -16,6 +16,7 @@ class CurrencyRateListAdapter(private var presenter: ConvertPresenter) :
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val currencyText: TextView = view.findViewById(R.id.currency_text)
         val rateText: TextView = view.findViewById(R.id.rate_text)
+        val currencyNameText: TextView = view.findViewById(R.id.currency_name_text)
     }
 
     fun refresh() {
@@ -27,9 +28,7 @@ class CurrencyRateListAdapter(private var presenter: ConvertPresenter) :
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.currency_row_item, parent, false)
 
-        return ViewHolder(
-            view
-        )
+        return ViewHolder(view)
     }
 
     override fun getItemCount(): Int {
@@ -37,19 +36,13 @@ class CurrencyRateListAdapter(private var presenter: ConvertPresenter) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currencyValue =
-            StringUtils.getCurrencyValue(
-                dataSet[position],
-                true
-            )
+        val currencyValue = StringUtils.getCurrencyValue(dataSet[position], true)
         val rate = presenter.currencyMap[currencyValue]
         val sourceRate = presenter.getSourceRate()
         val conversionRate = ((rate ?: 1.0) / sourceRate) * presenter.currentNominal
 
         holder.currencyText.text = currencyValue
-        holder.rateText.text =
-            StringUtils.getThousandSeparator(
-                conversionRate
-            )
+        holder.currencyNameText.text = presenter.currencyNameMap[currencyValue]
+        holder.rateText.text = StringUtils.getThousandSeparator(conversionRate)
     }
 }

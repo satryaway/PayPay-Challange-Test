@@ -4,5 +4,6 @@ import java.util.*
 
 data class LiveModel (
     val success: Boolean?,
-    val quotes: TreeMap<String, Double>?
+    val quotes: TreeMap<String, Double>?,
+    val error: ErrorModel?
 )
