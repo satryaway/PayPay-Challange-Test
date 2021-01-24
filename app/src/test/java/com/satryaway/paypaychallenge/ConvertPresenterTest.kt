@@ -2,6 +2,7 @@ package com.satryaway.paypaychallenge
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.satryaway.paypaychallenge.mocks.MockData
 import com.satryaway.paypaychallenge.models.CurrencyModel
 import com.satryaway.paypaychallenge.models.ErrorModel
 import com.satryaway.paypaychallenge.models.LiveModel
@@ -115,7 +116,6 @@ class ConvertPresenterTest {
         val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
         val currencyMap = TreeMap(maps)
         val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
-
         val mockCurrency = CurrencyModel(
             success = true,
             currencies = hashMapOf(
@@ -139,7 +139,6 @@ class ConvertPresenterTest {
         val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
         val currencyMap = TreeMap(maps)
         val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
-
         val mockCurrency: CurrencyModel? = null
 
         // When
@@ -152,12 +151,9 @@ class ConvertPresenterTest {
     @Test
     fun `failed request currency will return correct information`() {
         // Given
-        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
-        val currencyMap = TreeMap(maps)
         val errorMsg = "Your monthly usage limit has been reached. " +
                 "Please upgrade your subscription plan."
-        val mockLive = LiveModel(success = true, quotes = currencyMap, error = ErrorModel(errorMsg))
-
+        val mockLive = LiveModel(success = true, quotes = null, error = ErrorModel(errorMsg))
         val mockCurrency: CurrencyModel? = null
 
         // When
@@ -170,51 +166,28 @@ class ConvertPresenterTest {
     @Test
     fun `failed currency request handle request will return correct value`() {
         // Given
-        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
-        val currencyMap = TreeMap(maps)
-        val errorMsg = "Your monthly usage limit has been reached. " +
-                "Please upgrade your subscription plan."
-        val mockLive =
-            LiveModel(success = false, quotes = currencyMap, error = ErrorModel(errorMsg))
-
-        val mockCurrency = CurrencyModel(
-            success = true,
-            currencies = hashMapOf(
-                Pair("IDR", "Indonesian Rupiah"),
-                Pair("USD", "United State Dollar")
-            ),
-            error = null
-        )
+        val mockLive = MockData.getLiveMockFailed()
+        val mockCurrency = MockData.getCurrencyMock()
 
         // When
         presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
 
         // Then
-        verify(view).onFailedFetchingCurrency(errorMsg)
+        verify(view).onFailedFetchingCurrency(mockLive.error?.info ?: "")
     }
 
     @Test
     fun `failed currency name request handle request will return correct value`() {
         // Given
-        val maps = hashMapOf(Pair("IDR", 130.90), Pair("USD", 14050.0))
-        val currencyMap = TreeMap(maps)
-        val errorMsg = "Your account is not active. Please get in touch with Customer Support."
+        val currencyMap = MockData.getLiveMock().quotes
         val mockLive = LiveModel(success = true, quotes = currencyMap, error = null)
-
-        val mockCurrency = CurrencyModel(
-            success = false,
-            currencies = hashMapOf(
-                Pair("IDR", "Indonesian Rupiah"),
-                Pair("USD", "United State Dollar")
-            ),
-            error = ErrorModel(errorMsg)
-        )
+        val mockCurrency = MockData.getCurrencyMockFailed()
 
         // When
         presenter.handleRequestRate(cacheUtils, mockLive, mockCurrency)
 
         // Then
-        verify(view).onFailedFetchingCurrency(errorMsg)
+        verify(view).onFailedFetchingCurrency(mockCurrency.error?.info ?: "")
     }
 
     @Test
@@ -222,15 +195,12 @@ class ConvertPresenterTest {
         // Given
         val rangeBetweenLastFetch = 20
         val date = Date().time - (rangeBetweenLastFetch * 60 * 1000)
-        val mockEditor = mock(SharedPreferences.Editor::class.java)
         val currencyList = arrayListOf("IDR", "USD")
 
         presenter.attachView(view)
 
         `when`(context.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE))
             .thenReturn(sharedPrefs)
-        `when`(sharedPrefs.edit())
-            .thenReturn(mockEditor)
         `when`(sharedPrefs.getString(Constants.CURRENCY, ""))
             .thenReturn("{\"IDR\" : 14050.5, \"USD\" : 135.55}")
         `when`(sharedPrefs.getString(Constants.CURRENCY_NAME, ""))

@@ -1,6 +1,7 @@
 package com.satryaway.paypaychallenge.mocks
 
 import com.satryaway.paypaychallenge.models.CurrencyModel
+import com.satryaway.paypaychallenge.models.ErrorModel
 import com.satryaway.paypaychallenge.models.LiveModel
 import java.util.*
 
@@ -18,6 +19,12 @@ object MockData {
         )
     }
 
+    fun getLiveMockFailed(): LiveModel {
+        val errorMsg = "Your monthly usage limit has been reached. " +
+                "Please upgrade your subscription plan."
+        return LiveModel(success = false, quotes = null, error = ErrorModel(errorMsg))
+    }
+
     fun getCurrencyMock(): CurrencyModel {
         val maps = hashMapOf(
             Pair("USD", "United States Dollar"),
@@ -27,6 +34,15 @@ object MockData {
             true,
             maps,
             null
+        )
+    }
+
+    fun getCurrencyMockFailed(): CurrencyModel {
+        val errorMsg = "Your account is not active. Please get in touch with Customer Support."
+        return CurrencyModel(
+            success = false,
+            currencies = null,
+            error = ErrorModel(errorMsg)
         )
     }
 }
